@@ -8,7 +8,15 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE, dpi = 180, fig.width = 8, fig.height = 5, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	fig.height = 5,
+	fig.width = 8,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	dpi = 180
+)
 library(tidyverse)
 library(tidymodels)
 ```
@@ -20,7 +28,7 @@ penguins <- ttfile$penguins
 ```
 
 ### let's explore the data to see if we can find some good features to classify male and female penguins
-```{r}
+```{r Boxplot}
 penguins %>% 
     drop_na() %>%
     pivot_longer(bill_length_mm:body_mass_g, names_to = 'spec', values_to = 'value') %>% 
@@ -31,7 +39,7 @@ penguins %>%
     labs(title = "Body Specs clearly show a difference in male and female penguins")
 ```
 
-```{r}
+```{r Dotplot}
 penguins %>% 
     filter(!is.na(sex)) %>% 
     ggplot(aes(flipper_length_mm, bill_length_mm, color = sex, size = body_mass_g)) +
@@ -116,7 +124,7 @@ rf_rs %>%
     collect_metrics()
 ```
 
-```{r}
+```{r roc for resamples}
 glm_rs %>% 
     collect_predictions() %>% 
     group_by(id) %>% 
@@ -147,7 +155,7 @@ penguin_final %>%
   conf_mat(sex, .pred_class)
 ```
 
-```{r}
+```{r roc for test data}
 penguin_final %>% 
   collect_predictions() %>% 
   roc_curve(sex, .pred_female) %>% 

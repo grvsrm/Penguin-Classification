@@ -170,3 +170,62 @@ rf_rs %>%
     ##   <chr>    <chr>      <dbl> <int>   <dbl>
     ## 1 accuracy binary     0.897   100 0.00297
     ## 2 roc_auc  binary     0.962   100 0.00143
+
+``` r
+glm_rs %>% 
+    collect_predictions() %>% 
+    group_by(id) %>% 
+    roc_curve(sex, .pred_female) %>% 
+    ggplot(aes(1-specificity, sensitivity, color = id)) +
+    geom_abline(lty=2, size = 1, color = "gray") +
+    geom_path(show.legend = F, size = 1, alpha = 0.6)
+```
+
+![](index_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+### Finally lets fit this model to our test data and see how performs
+
+``` r
+penguin_final <- penguin_wf %>% 
+  add_model(glm_spec) %>% 
+  last_fit(penguin_split)
+  
+penguin_final
+```
+
+    ## # Monte Carlo cross-validation (0.75/0.25) with 1 resamples  
+    ## # A tibble: 1 x 6
+    ##   splits       id           .metrics      .notes       .predictions    .workflow
+    ##   <list>       <chr>        <list>        <list>       <list>          <list>   
+    ## 1 <split [250~ train/test ~ <tibble [2 x~ <tibble [1 ~ <tibble [83 x ~ <workflo~
+
+``` r
+penguin_final %>% 
+  collect_metrics()
+```
+
+    ## # A tibble: 2 x 3
+    ##   .metric  .estimator .estimate
+    ##   <chr>    <chr>          <dbl>
+    ## 1 accuracy binary         0.940
+    ## 2 roc_auc  binary         0.991
+
+``` r
+penguin_final %>% 
+  collect_predictions() %>% 
+  conf_mat(sex, .pred_class)
+```
+
+    ##           Truth
+    ## Prediction male female
+    ##     male     39      2
+    ##     female    3     39
+
+``` r
+penguin_final %>% 
+  collect_predictions() %>% 
+  roc_curve(sex, .pred_female) %>% 
+  autoplot()
+```
+
+![](index_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
