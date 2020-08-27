@@ -1,0 +1,15 @@
+---
+title: "Tidymodels and Classification on Penguin Data"
+author: "Gaurav Sharma"
+date: "27/08/2020"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, dpi = 180, fig.width = 8, fig.height = 5, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(tidymodels)
+```
+
