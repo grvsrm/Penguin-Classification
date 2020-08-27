@@ -1,5 +1,5 @@
 ---
-title: "Tidymodels and Classification on Penguin Data"
+title: "Tidymodels and Classification on Palmer Penguin Data"
 author: "Gaurav Sharma"
 date: "27/08/2020"
 output: github_document
@@ -11,5 +11,21 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE, dpi = 180, fig.width = 8, fig.height = 5, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(tidymodels)
+```
+
+# Reading the files
+```{r}
+ttfile <- tidytuesdayR::tt_load('2020-07-28')
+penguins <- ttfile$penguins
+```
+
+```{r}
+penguins %>% 
+    drop_na() %>%
+    pivot_longer(bill_length_mm:body_mass_g, names_to = 'spec', values_to = 'value') %>% 
+    ggplot(aes(x= value, y = sex, fill = sex)) +
+    geom_boxplot(color = "gray") +
+    facet_wrap(~spec, scales = "free_y") +
+    coord_flip()
 ```
 
