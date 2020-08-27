@@ -30,7 +30,7 @@ penguins %>%
     labs(title = "Body Specs clearly show a difference in male and female penguins")
 ```
 
-![](index_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](index_files/figure-gfm/Boxplot-1.png)<!-- -->
 
 ``` r
 penguins %>% 
@@ -41,7 +41,7 @@ penguins %>%
     labs(title = "Flipper and bill length can be used to differentiate between male and female penguins")
 ```
 
-![](index_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](index_files/figure-gfm/Dotplot-1.png)<!-- -->
 
 ### Lets drop the NAs and finalize the data that we are going to use for modelling
 
@@ -181,7 +181,7 @@ glm_rs %>%
     geom_path(show.legend = F, size = 1, alpha = 0.6)
 ```
 
-![](index_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](index_files/figure-gfm/roc%20for%20resamples-1.png)<!-- -->
 
 ### Finally lets fit this model to our test data and see how performs
 
@@ -228,4 +228,4 @@ penguin_final %>%
   autoplot()
 ```
 
-![](index_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](index_files/figure-gfm/roc%20for%20test%20data-1.png)<!-- -->
