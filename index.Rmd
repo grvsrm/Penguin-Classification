@@ -40,3 +40,117 @@ penguins %>%
     labs(title = "Flipper and bill length can be used to differentiate between male and female penguins")
 ```
 
+### Lets drop the NAs and finalize the data that we are going to use for modelling
+```{r}
+penguins_df <- penguins %>% 
+    drop_na() %>% 
+    select(-c(year, island)) %>% 
+    mutate(sex = as_factor(sex))
+```
+
+### Lets create a split to get our training and testing datasets
+```{r}
+set.seed(123)
+penguin_split <- penguins_df %>% 
+    initial_split(strata = sex)
+
+penguin_train <- training(penguin_split)
+penguin_test <- testing(penguin_split)
+penguin_split
+```
+
+### As we don't have a lot of data hence it makes sense to create resamples to evaluatethe model properly. We will save the test set for final generalization.
+```{r}
+set.seed(234)
+penguin_boot <- penguin_train %>% 
+    bootstraps(times = 100)
+penguin_boot
+```
+
+### lets create classification models now. We will create two models. A logistic regression model and a random forest model. Let's create specs for these two models.
+
+
+```{r}
+glm_spec <- logistic_reg() %>% 
+    set_engine(engine = 'glm') %>% 
+    set_mode(mode = "classification")
+glm_spec
+
+rf_spec <- rand_forest() %>% 
+    set_mode(mode = "classification") %>% 
+    set_engine(engine = "ranger")
+rf_spec
+```
+
+### Lets create a workflow now to combine the specs and data and define a standardized workflow for modelling
+```{r}
+penguin_wf <- workflow() %>% 
+    add_formula(sex~.)
+penguin_wf
+```
+
+### Lets train our first model which is a logistic regression model
+```{r}
+glm_rs <- penguin_wf %>% 
+    add_model(glm_spec) %>% 
+    fit_resamples(resamples = penguin_boot,
+                  control = control_resamples(save_pred = TRUE), 
+                  verbose = TRUE)
+
+rf_rs <- penguin_wf %>% 
+    add_model(rf_spec) %>% 
+    fit_resamples(resamples = penguin_boot,
+                  control = control_resamples(save_pred = TRUE), 
+                  verbose = TRUE)
+
+```
+
+### Lets have a look at the performances of these models
+```{r}
+glm_rs %>% 
+    collect_metrics()
+```
+
+```{r}
+rf_rs %>% 
+    collect_metrics()
+```
+
+```{r}
+glm_rs %>% 
+    collect_predictions() %>% 
+    group_by(id) %>% 
+    roc_curve(sex, .pred_female) %>% 
+    ggplot(aes(1-specificity, sensitivity, color = id)) +
+    geom_abline(lty=2, size = 1, color = "gray") +
+    geom_path(show.legend = F, size = 1, alpha = 0.6)
+    
+```
+
+### Finally lets fit this model to our test data and see how performs
+```{r}
+penguin_final <- penguin_wf %>% 
+  add_model(glm_spec) %>% 
+  last_fit(penguin_split)
+  
+penguin_final
+```
+
+```{r}
+penguin_final %>% 
+  collect_metrics()
+```
+
+```{r}
+penguin_final %>% 
+  collect_predictions() %>% 
+  conf_mat(sex, .pred_class)
+```
+
+```{r}
+penguin_final %>% 
+  collect_predictions() %>% 
+  roc_curve(sex, .pred_female) %>% 
+  autoplot()
+```
+
